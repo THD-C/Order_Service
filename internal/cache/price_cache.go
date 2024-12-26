@@ -2,7 +2,7 @@ package cache
 
 import (
 	"context"
-	"order_service/internal/types"
+	"github.com/shopspring/decimal"
 	"sync"
 	"time"
 )
@@ -15,14 +15,14 @@ func NewPriceCache() *PriceCache {
 	return &PriceCache{}
 }
 
-func (pc *PriceCache) GetPrice(symbol string) (types.Price, bool) {
+func (pc *PriceCache) GetPrice(symbol string) (decimal.Decimal, bool) {
 	value, exists := pc.prices.Load(symbol)
 	if !exists {
-		return types.Price{}, false
+		return decimal.Decimal{}, false
 	}
-	price, ok := value.(types.Price)
+	price, ok := value.(decimal.Decimal)
 	if !ok {
-		return types.Price{}, false
+		return decimal.Decimal{}, false
 	}
 	return price, true
 }
@@ -47,7 +47,7 @@ func (pc *PriceCache) UpdatePrices(ctx context.Context, interval time.Duration) 
 	}
 }
 
-func fetchPrices() (map[string]types.Price, error) {
+func fetchPrices() (map[string]decimal.Decimal, error) {
 	// TODO: Tutaj będzie łączenie się do Arka i zbieranie cen
 	return nil, nil
 }
