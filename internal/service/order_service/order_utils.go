@@ -28,6 +28,8 @@ func RollbackWallet(
 	wallet *types.Wallet,
 	originalValue decimal.Decimal,
 ) error {
+	wallet.Lock()
+	defer wallet.Unlock()
 	wallet.Value = originalValue
 	if err := cache.SaveWallet(wallet); err != nil {
 		log.Error().Err(err).Msg("Rollback failed")

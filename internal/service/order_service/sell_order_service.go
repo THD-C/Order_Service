@@ -12,6 +12,10 @@ import (
 
 type SellOrderService struct{}
 
+func NewSellOrderService() *SellOrderService {
+	return &SellOrderService{}
+}
+
 func (s *SellOrderService) processOrder(
 	order *types.Order,
 ) error {
@@ -22,9 +26,9 @@ func (s *SellOrderService) processOrder(
 		return err
 	}
 
-	btcAmount := order.Nominal.Div(order.Price)
-
-	if cryptoWallet.Value.LessThan(btcAmount) {
+	cryptoWallet.Mutex.Lock()
+	if cryptoWallet.Value.LessThan(order.Nominal) {
+		cryptoWallet.Mutex.Unlock()
 		log.Error().Interface("request", order).Msg(bussiness_errors.MsgInsufficientCryptoCurrency)
 		return bussiness_errors.NewCustomError(
 			bussiness_errors.ErrInsufficientCryptoCurrency,
@@ -34,11 +38,16 @@ func (s *SellOrderService) processOrder(
 
 	originalCryptoValue := cryptoWallet.Value
 
-	cryptoWallet.Value = cryptoWallet.Value.Sub(btcAmount)
+	cryptoWallet.Value = cryptoWallet.Value.Sub(order.Nominal)
 	if err = cache.SaveWallet(cryptoWallet); err != nil {
+		cryptoWallet.Mutex.Unlock()
 		log.Error().Err(err).Interface("request", order).Msg("Failed to update crypto wallet")
 		return fmt.Errorf("failed to update crypto wallet: %v", err)
 	}
+	cryptoWallet.Mutex.Unlock()
+
+	fiatWallet.Mutex.Lock()
+	defer fiatWallet.Mutex.Unlock()
 
 	fiatWallet.Value = fiatWallet.Value.Add(order.Nominal.Mul(order.Price))
 	if err = cache.SaveWallet(fiatWallet); err != nil {

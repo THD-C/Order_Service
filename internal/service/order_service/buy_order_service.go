@@ -12,6 +12,10 @@ import (
 
 type BuyOrderService struct{}
 
+func NewBuyOrderService() *BuyOrderService {
+	return &BuyOrderService{}
+}
+
 func (s *BuyOrderService) processOrder(
 	order *types.Order,
 ) error {
@@ -24,7 +28,9 @@ func (s *BuyOrderService) processOrder(
 
 	totalCost := order.Nominal.Mul(order.Price)
 
+	fiatWallet.Mutex.Lock()
 	if fiatWallet.Value.LessThan(totalCost) {
+		fiatWallet.Mutex.Unlock()
 		log.Error().Interface("request", order).Msg(bussiness_errors.MsgInsufficientFiatCurrency)
 		return bussiness_errors.NewCustomError(
 			bussiness_errors.ErrInsufficientFiatCurrency,
@@ -39,8 +45,12 @@ func (s *BuyOrderService) processOrder(
 		log.Error().Err(err).Interface("request", order).Msg("Failed to update fiat wallet")
 		return fmt.Errorf("failed to update fiat wallet: %v", err)
 	}
+	fiatWallet.Mutex.Unlock()
 
 	btcAmount := order.Nominal
+
+	cryptoWallet.Mutex.Lock()
+	defer cryptoWallet.Mutex.Unlock()
 
 	cryptoWallet.Value = cryptoWallet.Value.Add(btcAmount)
 	if err = cache.SaveWallet(cryptoWallet); err != nil {
