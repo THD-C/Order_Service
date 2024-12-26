@@ -17,12 +17,11 @@ type PendingBuyOrderService struct {
 }
 
 func NewPendingBuyOrderService(
-	orderCache *cache.OrderCache,
 	priceCache *cache.PriceCache,
 	orderService OrderService,
 ) *PendingBuyOrderService {
 	return &PendingBuyOrderService{
-		orderCache:   orderCache,
+		orderCache:   cache.NewOrderCache(),
 		priceCache:   priceCache,
 		orderService: orderService,
 	}
