@@ -26,7 +26,10 @@ func (s *WalletService) CreateWallet(_ context.Context, req *wallet.Wallet) (
 		return nil, err
 	}
 
+	createWallet.Mutex.Lock()
 	err = cache.SaveWallet(&createWallet)
+	createWallet.Mutex.Unlock()
+
 	if err != nil {
 		log.Error().Err(err).Interface("request", req).Msg("Failed to save wallet")
 		return nil, err
@@ -49,6 +52,7 @@ func (s *WalletService) UpdateWallet(_ context.Context, req *wallet.Wallet) (
 		return nil, fmt.Errorf("wallet not found: %v", err)
 	}
 
+	updateWallet.Mutex.Lock()
 	updateWallet.Value, err = decimal.NewFromString(req.Value)
 	if err != nil {
 		log.Error().Err(err).Interface("request", req).Msg("Failed to read new value for wallet")
@@ -56,6 +60,8 @@ func (s *WalletService) UpdateWallet(_ context.Context, req *wallet.Wallet) (
 	}
 
 	err = cache.SaveWallet(updateWallet)
+	updateWallet.Mutex.Unlock()
+
 	if err != nil {
 		log.Error().Err(err).Interface("request", req).Msg("Failed to update wallet")
 		return nil, fmt.Errorf("failed to update wallet: %v", err)
