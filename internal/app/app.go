@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -18,9 +19,14 @@ func startGRPCServer() {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	priceCache := cache.NewPriceCache()
+	go priceCache.UpdatePrices(ctx, config.GetConfig().CoingeckoPollingFrequency)
+
 	s := grpc.NewServer()
 	wallet.RegisterWalletsServer(s, &server.WalletServer{})
-	order.RegisterOrderServer(s, server.NewOrderServer())
+	order.RegisterOrderServer(s, server.NewOrderServer(priceCache))
 	reflection.Register(s)
 
 	log.Printf("server listening at %v", lis.Addr())
@@ -30,7 +36,7 @@ func startGRPCServer() {
 }
 
 func App() {
-	_, err := config.LoadConfig("config/config.json")
+	_, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal().Msg("Failed to read config from file")
 	}
