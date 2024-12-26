@@ -59,7 +59,6 @@ func (s *PendingBuyOrderService) CreateOrder(
 func (s *PendingBuyOrderService) UpdateOrder(
 	_ context.Context,
 	order *types.Order,
-	fiatCurrency, cryptoCurrency string,
 ) error {
 	cachedOrder, err := s.orderCache.Get(order.ID)
 	if err != nil {
@@ -132,7 +131,7 @@ func (s *PendingBuyOrderService) executePendingOrders(ctx context.Context) {
 			continue
 		}
 
-		if price.Ask.LessThanOrEqual(pendingOrder.Order.Price) {
+		if price.LessThanOrEqual(pendingOrder.Order.Price) {
 			err = s.orderService.ExecuteOrder(ctx, pendingOrder.Order)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to execute order")
