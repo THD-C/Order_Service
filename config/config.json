@@ -1,0 +1,7 @@
+{
+  "db_manager_address": ".",
+  "coingecko_service_address": ".",
+  "db_manager_timeout": 30,
+  "coingecko_service_timeout": 30,
+  "coingecko_polling_frequency": 60
+}
