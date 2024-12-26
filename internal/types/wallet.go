@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	proto "order_service/generated/wallet"
+	"sync"
 )
 
 type Wallet struct {
+	sync.Mutex
 	ID       string          `json:"id"`
 	UserID   string          `json:"user_id"`
 	Currency string          `json:"currency"`
