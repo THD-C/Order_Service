@@ -106,7 +106,7 @@ func (s *PendingBuyOrderService) CheckAndExecuteOrders(
 	for {
 		select {
 		case <-ticker.C:
-			s.executePendingOrders(ctx)
+			// s.executePendingOrders(ctx)
 		case <-ctx.Done():
 			return
 		}
