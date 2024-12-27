@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"github.com/shopspring/decimal"
 	"order_service/generated/wallet"
 	"order_service/internal/cache"
+	"order_service/internal/logger"
 	"order_service/internal/types"
 )
 
@@ -17,6 +17,7 @@ func (s *WalletService) CreateWallet(_ context.Context, req *wallet.Wallet) (
 	*wallet.Wallet,
 	error,
 ) {
+	log := logger.GetLogger()
 	log.Info().Interface("request", req).Msg("Creating wallet")
 
 	var createWallet types.Wallet
@@ -43,6 +44,7 @@ func (s *WalletService) UpdateWallet(_ context.Context, req *wallet.Wallet) (
 	*wallet.Wallet,
 	error,
 ) {
+	log := logger.GetLogger()
 	log.Info().Interface("request", req).Msg("Updating wallet")
 
 	var updateWallet *types.Wallet
@@ -75,6 +77,7 @@ func (s *WalletService) GetWallet(_ context.Context, req *wallet.WalletID) (
 	*wallet.Wallet,
 	error,
 ) {
+	log := logger.GetLogger()
 	log.Info().Interface("request", req).Msg("Getting wallet")
 
 	var retrievedWallet *types.Wallet
