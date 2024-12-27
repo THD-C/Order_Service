@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	order "order_service/generated/order"
@@ -31,7 +30,6 @@ func NewDBManagerClient() (*DBManagerClient, error) {
 		),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to DBManager service")
 		return nil, err
 	}
 

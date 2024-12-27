@@ -1,7 +1,6 @@
 package client
 
 import (
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	proto "order_service/generated/coins"
@@ -25,7 +24,6 @@ func NewCoinGeckoClient() (*CoinGeckoClient, error) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to coin gecko service")
 		return nil, err
 	}
 
