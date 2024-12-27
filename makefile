@@ -1,5 +1,5 @@
 PROTO_SRC_DIR=./Protocol/proto
-PROTO_OUT_DIR=generated
+PROTO_OUT_DIR=./generated
 
 run:
 	go run cmd/order_service/main.go

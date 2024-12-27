@@ -6,14 +6,14 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-# Install protobuf compiler and make
-RUN apk add --no-cache protobuf make
+RUN apk add --no-cache protobuf protobuf-dev make
 
-# Install Go protobuf plugin
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-COPY . .
+COPY cmd cmd
+COPY internal internal
+COPY Protocol Protocol
 
 RUN make proto
 
