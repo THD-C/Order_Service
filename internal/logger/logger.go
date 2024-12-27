@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"os"
 	"sync"
+	"time"
 )
 
 var (
@@ -14,10 +15,11 @@ var (
 func Init() {
 	once.Do(
 		func() {
+			zerolog.TimeFieldFormat = time.StampMilli
 			globalLogger = zerolog.New(
 				zerolog.ConsoleWriter{
 					Out:        os.Stdout,
-					TimeFormat: "2006-01-02 15:04:05",
+					TimeFormat: "2006-01-02 15:04:05.000",
 				},
 			).With().
 				Timestamp().
