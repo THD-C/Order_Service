@@ -16,8 +16,8 @@ import (
 func Init() *sdktrace.TracerProvider {
 	log := logger.GetLogger()
 	var (
-		serviceName  = "SERVICE_NAME"
-		collectorURL = "http://tempo:4317"
+		serviceName  = "order_service"
+		collectorURL = "Tempo:4317"
 	)
 
 	secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
