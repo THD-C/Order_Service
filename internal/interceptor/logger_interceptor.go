@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func LoggerInterceptor(logger zerolog.Logger) grpc.UnaryServerInterceptor {
+func UnaryInterceptor(logger zerolog.Logger) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
