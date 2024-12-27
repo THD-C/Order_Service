@@ -2,7 +2,7 @@ PROTO_SRC_DIR=./Protocol/proto
 PROTO_OUT_DIR=generated
 
 run:
-	go run main.go
+	go run cmd/order_service/main.go
 
 proto:
 	mkdir -p $(PROTO_OUT_DIR)
