@@ -3,7 +3,15 @@ package client
 import (
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	proto "order_service/generated/coins"
+	"order_service/internal/config"
+	"sync"
+)
+
+var (
+	coinGeckoClientInstance *CoinGeckoClient
+	coinGeckoOnce           sync.Once
 )
 
 type CoinGeckoClient struct {
@@ -11,8 +19,11 @@ type CoinGeckoClient struct {
 	client proto.CoinsClient
 }
 
-func NewCoinGeckoClient(address string) (*CoinGeckoClient, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+func NewCoinGeckoClient() (*CoinGeckoClient, error) {
+	conn, err := grpc.NewClient(
+		config.GetConfig().CoingeckoServiceAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to connect to coin gecko service")
 		return nil, err
@@ -23,6 +34,16 @@ func NewCoinGeckoClient(address string) (*CoinGeckoClient, error) {
 		conn:   conn,
 		client: client,
 	}, nil
+}
+
+func GetCoinGeckoClient() (*CoinGeckoClient, error) {
+	var err error
+	coinGeckoOnce.Do(
+		func() {
+			coinGeckoClientInstance, err = NewCoinGeckoClient()
+		},
+	)
+	return coinGeckoClientInstance, err
 }
 
 func (c *CoinGeckoClient) Close() error {
