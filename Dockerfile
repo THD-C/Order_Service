@@ -14,6 +14,7 @@ RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 COPY cmd cmd
 COPY internal internal
 COPY Protocol Protocol
+COPY makefile makefile
 
 RUN make proto
 
