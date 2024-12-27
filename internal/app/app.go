@@ -52,19 +52,33 @@ func startGRPCServer() {
 	}
 }
 
-func App() {
+func Init() error {
 	logger.Init()
 	log := logger.GetLogger()
 
 	_, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal().Msg("Failed to read config from file")
+		return err
 	}
 
 	err = cache.FetchAllWalletsFromService()
 	if err != nil {
 		log.Fatal().Msg("Failed to fetch wallets")
+		return err
 	}
+
+	return nil
+}
+
+func Run() {
+	log := logger.GetLogger()
+
+	err := cache.FetchAllWalletsFromService()
+	if err != nil {
+		log.Fatal().Msg("Failed to fetch wallets")
+	}
+
 	go startPrometheusMetrics()
 	startGRPCServer()
 }
