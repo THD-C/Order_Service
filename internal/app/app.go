@@ -1,9 +1,11 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -18,8 +20,10 @@ import (
 )
 
 func startPrometheusMetrics() {
+	conf := config.GetConfig()
+	addr := fmt.Sprintf(":%s", conf.PrometheusPort)
 	http.Handle("/metrics", promhttp.Handler())
-	_ = http.ListenAndServe(config.GetConfig().PrometheusPort, nil)
+	_ = http.ListenAndServe(addr, nil)
 }
 
 func startGRPCServer() {
@@ -39,6 +43,7 @@ func startGRPCServer() {
 			grpcMetrics.UnaryServerInterceptor(),
 			interceptor.UnaryInterceptor(logger.GetLogger()),
 		),
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 	}
 
 	s := grpc.NewServer(opts...)
@@ -46,7 +51,7 @@ func startGRPCServer() {
 	order.RegisterOrderServer(s, server.NewOrderServer())
 	reflection.Register(s)
 
-	log.Printf("server listening at %v", lis.Addr())
+	log.Info().Msgf("server listening at %v", lis.Addr())
 	if err = s.Serve(lis); err != nil {
 		log.Fatal().Msgf("failed to serve: %v", err)
 	}
@@ -80,5 +85,13 @@ func Run() {
 	}
 
 	go startPrometheusMetrics()
+
+	tp := config.Init()
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+
 	startGRPCServer()
 }
