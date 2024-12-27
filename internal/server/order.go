@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	proto "order_service/generated/order"
-	"order_service/internal/cache"
 	"order_service/internal/service/order_service"
 )
 
@@ -15,14 +14,12 @@ const (
 
 type OrderServer struct {
 	proto.UnimplementedOrderServer
-	pricesCache      *cache.PriceCache
 	buyOrderService  order_service.OrderService
 	sellOrderService order_service.OrderService
 }
 
-func NewOrderServer(priceCache *cache.PriceCache) *OrderServer {
+func NewOrderServer() *OrderServer {
 	return &OrderServer{
-		pricesCache:      priceCache,
 		buyOrderService:  &order_service.BuyOrderService{},
 		sellOrderService: &order_service.SellOrderService{},
 	}
