@@ -2,20 +2,32 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"github.com/shopspring/decimal"
-	"net"
+	"order_service/internal/types"
 	"sync"
 	"time"
 )
 
+var (
+	priceCacheInstance *PriceCache
+	priceCacheOnce     sync.Once
+)
+
 type PriceCache struct {
 	prices sync.Map
-	conn   net.Conn
 }
 
 func NewPriceCache() *PriceCache {
-	return &PriceCache{}
+	priceCacheOnce.Do(
+		func() {
+			priceCacheInstance = &PriceCache{}
+		},
+	)
+	return priceCacheInstance
+}
+
+func GetPriceCache() *PriceCache {
+	return priceCacheInstance
 }
 
 func (pc *PriceCache) GetPrice(symbol string) (decimal.Decimal, bool) {
@@ -50,30 +62,11 @@ func (pc *PriceCache) UpdatePrices(ctx context.Context, interval time.Duration) 
 	}
 }
 
-func fetchPrices() (map[string]decimal.Decimal, error) {
-	// ctx, cancel := context.WithTimeout(context.Background(), config.GetConfig().CoingeckoServiceTimeout)
-	// defer cancel()
-	//
-	// conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer conn.Close()
+func fetchPrices() ([]*types.CoinPrice, error) {
+	// coinGeckoClient, err := client.GetCoinGeckoClient()
 	//
 	// if err != nil {
 	// 	return nil, err
 	// }
-	//
-	// result := make(map[string]decimal.Decimal)
-	// for _, coin := range response.Coins {
-	// 	price, err := decimal.NewFromString(coin.Price)
-	// 	if err != nil {
-	// 		return nil, errors.New("invalid price format for symbol: " + coin.Symbol)
-	// 	}
-	// 	result[coin.Symbol] = price
-	// }
-
-	// TODO: Trzeba poczekać na dodanie metody od Arka
-
-	return nil, fmt.Errorf("tests")
+	return nil, nil
 }
