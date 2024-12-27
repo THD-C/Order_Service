@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Addr                      string
 	Port                      string
+	PrometheusPort            string
 	DBManagerAddress          string
 	CoingeckoServiceAddress   string
 	DBManagerTimeout          time.Duration
@@ -36,6 +37,11 @@ func LoadConfig() (*Config, error) {
 				applicationPort = "50051"
 			}
 
+			prometheusPort := os.Getenv("APPLICATION_PORT")
+			if prometheusPort == "" {
+				prometheusPort = "8111"
+			}
+
 			dbManagerTimeout, err := strconv.Atoi(os.Getenv("DB_MANAGER_TIMEOUT"))
 			if err != nil {
 				dbManagerTimeout = 30
@@ -54,6 +60,7 @@ func LoadConfig() (*Config, error) {
 			instance = &Config{
 				Addr:                      applicationAddr,
 				Port:                      applicationPort,
+				PrometheusPort:            prometheusPort,
 				DBManagerAddress:          os.Getenv("DB_MANAGER_ADDRESS"),
 				CoingeckoServiceAddress:   os.Getenv("COINGECKO_SERVICE_ADDRESS"),
 				DBManagerTimeout:          time.Duration(dbManagerTimeout) * time.Second,
