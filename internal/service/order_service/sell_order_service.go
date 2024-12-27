@@ -3,10 +3,10 @@ package order_service
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	proto "order_service/generated/order"
 	"order_service/internal/bussiness_errors"
 	"order_service/internal/cache"
+	"order_service/internal/logger"
 	"order_service/internal/types"
 )
 
@@ -19,6 +19,7 @@ func NewSellOrderService() *SellOrderService {
 func (s *SellOrderService) processOrder(
 	order *types.Order,
 ) error {
+	log := logger.GetLogger()
 	log.Info().Interface("request", order).Msg("Processing sell order")
 
 	fiatWallet, cryptoWallet, err := FetchAndValidateWallets(order)
