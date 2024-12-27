@@ -19,7 +19,7 @@ import (
 
 func startPrometheusMetrics() {
 	http.Handle("/metrics", promhttp.Handler())
-	_ = http.ListenAndServe(":8080", nil)
+	_ = http.ListenAndServe(config.GetConfig().PrometheusPort, nil)
 }
 
 func startGRPCServer() {
