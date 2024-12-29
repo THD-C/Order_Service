@@ -6,6 +6,7 @@ import (
 	proto "order_service/generated/order"
 	"order_service/internal/bussiness_errors"
 	"order_service/internal/cache"
+	"order_service/internal/client"
 	"order_service/internal/logger"
 	"order_service/internal/types"
 )
@@ -61,6 +62,10 @@ func (s *SellOrderService) processOrder(
 		}
 		return fmt.Errorf("failed to update fiat wallet: %v", err)
 	}
+
+	dbManagerClient, _ := client.GetDBManagerClient()
+	_ = dbManagerClient.UpdateWallet(fiatWallet)
+	_ = dbManagerClient.UpdateWallet(cryptoWallet)
 
 	log.Info().Interface("request", order).Msg("Sell order processed successfully")
 	order.Status = proto.OrderStatus_ORDER_STATUS_COMPLETED

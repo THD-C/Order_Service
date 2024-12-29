@@ -61,7 +61,6 @@ func (s *PendingBuyOrderService) CreateOrder(
 		return order, err
 	}
 
-	order.Status = proto.OrderStatus_ORDER_STATUS_ACCEPTED
 	return order, nil
 }
 
