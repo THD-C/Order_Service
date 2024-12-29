@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 	"github.com/shopspring/decimal"
+	"order_service/internal/client"
 	"order_service/internal/types"
 	"sync"
 )
@@ -31,10 +32,12 @@ func FetchWallet(walletID string) (*types.Wallet, error) {
 }
 
 func FetchAllWalletsFromService() error {
-	// TODO: Docelowo z serwisu Stacha to będzie pobierane,
-	//  ale na razie nie ma tam danych więc sam symuluje
+	dbManagerClient, err := client.GetDBManagerClient()
+	if err != nil {
+		return err
+	}
 
-	wallets, err := fetchWalletsFromExternalService()
+	wallets, err := dbManagerClient.FetchAllWallets()
 	if err != nil {
 		return fmt.Errorf("failed to fetch wallets from service: %v", err)
 	}

@@ -77,6 +77,25 @@ func (c *DBManagerClient) UpdateWallet(updateWallet *types.Wallet) error {
 	return nil
 }
 
+func (c *DBManagerClient) FetchAllWallets() ([]*types.Wallet, error) {
+	wallets := make([]*types.Wallet, 0)
+
+	walletList, err := c.Wallets.GetUsersWallets(context.Background(), &wallet.UserID{})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, protoWallet := range walletList.Wallets {
+		var myWallet types.Wallet
+		if err := myWallet.FromProto(protoWallet); err != nil {
+			continue
+		}
+		wallets = append(wallets, &myWallet)
+	}
+
+	return wallets, nil
+}
+
 func (c *DBManagerClient) Close() error {
 	return c.conn.Close()
 }
