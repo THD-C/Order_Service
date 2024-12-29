@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Addr                      string
 	Port                      string
+	ServiceName               string
 	PrometheusPort            string
 	DBManagerAddress          string
 	CoingeckoServiceAddress   string
@@ -60,6 +61,7 @@ func LoadConfig() (*Config, error) {
 			instance = &Config{
 				Addr:                      applicationAddr,
 				Port:                      applicationPort,
+				ServiceName:               "order_service",
 				PrometheusPort:            prometheusPort,
 				DBManagerAddress:          os.Getenv("DB_MANAGER_ADDRESS"),
 				CoingeckoServiceAddress:   os.Getenv("COINGECKO_SERVICE_ADDRESS"),

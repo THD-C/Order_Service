@@ -1,4 +1,4 @@
-PROTO_SRC_DIR=./Protocol/proto
+PROTO_SRC_DIR=Protocol/proto
 PROTO_OUT_DIR=generated
 
 run:

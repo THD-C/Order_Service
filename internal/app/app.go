@@ -7,6 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"net"
 	"net/http"
@@ -47,12 +49,16 @@ func startGRPCServer() {
 	}
 
 	s := grpc.NewServer(opts...)
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(s, healthServer)
 	wallet.RegisterWalletsServer(s, &server.WalletServer{})
 	order.RegisterOrderServer(s, server.NewOrderServer())
 	reflection.Register(s)
 
 	log.Info().Msgf("server listening at %v", lis.Addr())
+	healthServer.SetServingStatus(conf.ServiceName, grpc_health_v1.HealthCheckResponse_SERVING)
 	if err = s.Serve(lis); err != nil {
+		healthServer.SetServingStatus(conf.ServiceName, grpc_health_v1.HealthCheckResponse_NOT_SERVING)
 		log.Fatal().Msgf("failed to serve: %v", err)
 	}
 }
