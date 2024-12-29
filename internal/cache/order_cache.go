@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"order_service/internal/client"
 	"order_service/internal/types"
 	"sync"
 )
@@ -79,5 +80,19 @@ func (oc *OrderCache) Delete(orderID string) error {
 }
 
 func (oc *OrderCache) FetchAllOrders() error {
+	dbManagerClient, err := client.GetDBManagerClient()
+	if err != nil {
+		return err
+	}
+
+	orders, err := dbManagerClient.FetchAllPendingOrders()
+	if err != nil {
+		return fmt.Errorf("failed to fetch wallets from service: %v", err)
+	}
+
+	for _, order := range orders {
+		oc.orderMap.Store(order.ID, order)
+	}
+
 	return nil
 }

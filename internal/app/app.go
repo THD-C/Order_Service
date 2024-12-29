@@ -73,12 +73,12 @@ func populateCaches() error {
 	orderCache := cache.GetOrderCache()
 	err = orderCache.FetchAllOrders()
 	if err != nil {
-		return fmt.Errorf("failed to fetch orders from database")
+		return fmt.Errorf("failed to fetch orders from database %v", err)
 	}
 
 	err = cache.FetchAllWalletsFromService()
 	if err != nil {
-		return fmt.Errorf("failed to fetch wallets from database")
+		return fmt.Errorf("failed to fetch wallets from database %v", err)
 	}
 
 	return nil

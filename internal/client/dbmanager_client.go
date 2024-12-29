@@ -77,6 +77,25 @@ func (c *DBManagerClient) UpdateWallet(updateWallet *types.Wallet) error {
 	return nil
 }
 
+func (c *DBManagerClient) FetchAllPendingOrders() ([]*types.Order, error) {
+	orders := make([]*types.Order, 0)
+
+	ordersList, err := c.orders.GetOrders(context.Background(), &order.OrderFilter{})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, protoOrder := range ordersList.Orders {
+		var myOrder types.Order
+		if err := myOrder.FromProto(protoOrder); err != nil {
+			continue
+		}
+		orders = append(orders, &myOrder)
+	}
+
+	return orders, nil
+}
+
 func (c *DBManagerClient) FetchAllWallets() ([]*types.Wallet, error) {
 	wallets := make([]*types.Wallet, 0)
 
