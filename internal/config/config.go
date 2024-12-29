@@ -31,17 +31,17 @@ func LoadConfig() (*Config, error) {
 		func() {
 			applicationAddr := os.Getenv("APPLICATION_ADDR")
 			if applicationAddr == "" {
-				applicationAddr = "localhost"
+				applicationAddr = "0.0.0.0"
 			}
 
 			applicationPort := os.Getenv("APPLICATION_PORT")
 			if applicationPort == "" {
-				applicationPort = "50053"
+				applicationPort = "50051"
 			}
 
 			prometheusPort := os.Getenv("APPLICATION_PORT")
 			if prometheusPort == "" {
-				prometheusPort = "8113"
+				prometheusPort = "8111"
 			}
 
 			dbManagerTimeout, err := strconv.Atoi(os.Getenv("DB_MANAGER_TIMEOUT"))
