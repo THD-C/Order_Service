@@ -8,15 +8,16 @@ import (
 )
 
 type Config struct {
-	Addr                      string
-	Port                      string
-	ServiceName               string
-	PrometheusPort            string
-	DBManagerAddress          string
-	CoingeckoServiceAddress   string
-	DBManagerTimeout          time.Duration
-	CoingeckoServiceTimeout   time.Duration
-	CoingeckoPollingFrequency time.Duration
+	Addr                       string
+	Port                       string
+	ServiceName                string
+	PrometheusPort             string
+	DBManagerAddress           string
+	CoingeckoServiceAddress    string
+	DBManagerTimeout           time.Duration
+	CoingeckoServiceTimeout    time.Duration
+	CoingeckoPollingFrequency  time.Duration
+	PendingOrderCheckFrequency time.Duration
 }
 
 var (
@@ -35,12 +36,12 @@ func LoadConfig() (*Config, error) {
 
 			applicationPort := os.Getenv("APPLICATION_PORT")
 			if applicationPort == "" {
-				applicationPort = "50051"
+				applicationPort = "50053"
 			}
 
 			prometheusPort := os.Getenv("APPLICATION_PORT")
 			if prometheusPort == "" {
-				prometheusPort = "8111"
+				prometheusPort = "8113"
 			}
 
 			dbManagerTimeout, err := strconv.Atoi(os.Getenv("DB_MANAGER_TIMEOUT"))
@@ -58,16 +59,22 @@ func LoadConfig() (*Config, error) {
 				coingeckoPollingFrequency = 60
 			}
 
+			pendingOrderCheckFrequency, err := strconv.Atoi(os.Getenv("PENDING_ORDER_CHECK_FREQUENCY"))
+			if err != nil {
+				pendingOrderCheckFrequency = 60
+			}
+
 			instance = &Config{
-				Addr:                      applicationAddr,
-				Port:                      applicationPort,
-				ServiceName:               "order_service",
-				PrometheusPort:            prometheusPort,
-				DBManagerAddress:          os.Getenv("DB_MANAGER_ADDRESS"),
-				CoingeckoServiceAddress:   os.Getenv("COINGECKO_SERVICE_ADDRESS"),
-				DBManagerTimeout:          time.Duration(dbManagerTimeout) * time.Second,
-				CoingeckoServiceTimeout:   time.Duration(coingeckoServiceTimeout) * time.Second,
-				CoingeckoPollingFrequency: time.Duration(coingeckoPollingFrequency) * time.Second,
+				Addr:                       applicationAddr,
+				Port:                       applicationPort,
+				ServiceName:                "order_service",
+				PrometheusPort:             prometheusPort,
+				DBManagerAddress:           os.Getenv("DB_MANAGER_ADDRESS"),
+				CoingeckoServiceAddress:    os.Getenv("COINGECKO_SERVICE_ADDRESS"),
+				DBManagerTimeout:           time.Duration(dbManagerTimeout) * time.Second,
+				CoingeckoServiceTimeout:    time.Duration(coingeckoServiceTimeout) * time.Second,
+				CoingeckoPollingFrequency:  time.Duration(coingeckoPollingFrequency) * time.Second,
+				PendingOrderCheckFrequency: time.Duration(pendingOrderCheckFrequency) * time.Second,
 			}
 		},
 	)
