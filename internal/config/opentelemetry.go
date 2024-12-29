@@ -2,6 +2,8 @@ package config
 
 import (
 	"context"
+	"order_service/internal/logger"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
@@ -9,8 +11,6 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"google.golang.org/grpc/credentials"
-	"order_service/internal/logger"
 )
 
 func Init() *sdktrace.TracerProvider {
@@ -20,12 +20,10 @@ func Init() *sdktrace.TracerProvider {
 		collectorURL = "Tempo:4317"
 	)
 
-	secureOption := otlptracegrpc.WithTLSCredentials(credentials.NewClientTLSFromCert(nil, ""))
-
 	exporter, err := otlptrace.New(
 		context.Background(),
 		otlptracegrpc.NewClient(
-			secureOption,
+			otlptracegrpc.WithInsecure(),
 			otlptracegrpc.WithEndpoint(collectorURL),
 		),
 	)
