@@ -63,6 +63,27 @@ func startGRPCServer() {
 	}
 }
 
+func populateCaches() error {
+	var err error
+	conf := config.GetConfig()
+
+	priceCache := cache.NewPriceCache()
+	go priceCache.UpdatePrices(context.Background(), conf.PendingOrderCheckFrequency)
+
+	orderCache := cache.GetOrderCache()
+	err = orderCache.FetchAllOrders()
+	if err != nil {
+		return fmt.Errorf("failed to fetch orders from database")
+	}
+
+	err = cache.FetchAllWalletsFromService()
+	if err != nil {
+		return fmt.Errorf("failed to fetch wallets from database")
+	}
+
+	return nil
+}
+
 func Init() error {
 	logger.Init()
 	log := logger.GetLogger()
@@ -73,9 +94,9 @@ func Init() error {
 		return err
 	}
 
-	err = cache.FetchAllWalletsFromService()
+	err = populateCaches()
 	if err != nil {
-		log.Fatal().Msg("Failed to fetch wallets")
+		log.Fatal().Err(err)
 		return err
 	}
 
@@ -84,11 +105,6 @@ func Init() error {
 
 func Run() {
 	log := logger.GetLogger()
-
-	err := cache.FetchAllWalletsFromService()
-	if err != nil {
-		log.Fatal().Msg("Failed to fetch wallets")
-	}
 
 	go startPrometheusMetrics()
 
