@@ -10,8 +10,18 @@ type OrderCache struct {
 	orderMap sync.Map
 }
 
-func NewOrderCache() *OrderCache {
-	return &OrderCache{}
+var (
+	instance *OrderCache
+	once     sync.Once
+)
+
+func GetOrderCache() *OrderCache {
+	once.Do(
+		func() {
+			instance = &OrderCache{}
+		},
+	)
+	return instance
 }
 
 func (oc *OrderCache) Add(pendingOrder *types.PendingOrder) error {
@@ -65,5 +75,9 @@ func (oc *OrderCache) Delete(orderID string) error {
 	}
 
 	oc.orderMap.Delete(orderID)
+	return nil
+}
+
+func (oc *OrderCache) FetchAllOrders() error {
 	return nil
 }
