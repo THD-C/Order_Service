@@ -151,7 +151,7 @@ func (s *PendingBuyOrderService) executePendingBuyOrders(ctx context.Context) {
 
 		if price.LessThanOrEqual(pendingOrder.Order.Price) {
 			pendingOrder.Order.Price = price
-			err = s.orderService.ExecuteOrder(ctx, pendingOrder.Order)
+			err = s.buyOrderService.ExecuteOrder(ctx, pendingOrder.Order)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to execute order")
 				continue
@@ -188,7 +188,7 @@ func (s *PendingBuyOrderService) executePendingSellOrders(ctx context.Context) {
 
 		if price.GreaterThanOrEqual(pendingOrder.Order.Price) {
 			pendingOrder.Order.Price = price
-			err = s.orderService.ExecuteOrder(ctx, pendingOrder.Order)
+			err = s.sellOrderService.ExecuteOrder(ctx, pendingOrder.Order)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to execute order")
 				continue
