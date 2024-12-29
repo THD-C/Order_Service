@@ -16,4 +16,7 @@ proto:
 	--go_out=$(PROTO_OUT_DIR) --go_opt=paths=source_relative \
 	--go-grpc_out=$(PROTO_OUT_DIR) --go-grpc_opt=paths=source_relative {} \;
 
-.PHONY: run healt proto
+clean:
+	rm -rf $(PROTO_OUT_DIR)
+
+.PHONY: run healt proto clean
