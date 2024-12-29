@@ -102,7 +102,7 @@ func (c *DBManagerClient) FetchAllPendingOrders() ([]*types.Order, error) {
 func (c *DBManagerClient) FetchAllWallets() ([]*types.Wallet, error) {
 	wallets := make([]*types.Wallet, 0)
 
-	walletList, err := c.Wallets.GetUsersWallets(context.Background(), &wallet.UserID{})
+	walletList, err := c.Wallets.GetAllWallets(context.Background(), &wallet.Empty{})
 	if err != nil {
 		return nil, err
 	}
