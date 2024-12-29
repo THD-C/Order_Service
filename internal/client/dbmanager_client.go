@@ -80,7 +80,10 @@ func (c *DBManagerClient) UpdateWallet(updateWallet *types.Wallet) error {
 func (c *DBManagerClient) FetchAllPendingOrders() ([]*types.Order, error) {
 	orders := make([]*types.Order, 0)
 
-	ordersList, err := c.orders.GetOrders(context.Background(), &order.OrderFilter{})
+	ordersList, err := c.orders.GetOrders(
+		context.Background(),
+		&order.OrderFilter{Type: order.OrderType_ORDER_TYPE_PENDING},
+	)
 	if err != nil {
 		return nil, err
 	}
