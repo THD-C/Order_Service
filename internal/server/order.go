@@ -5,6 +5,7 @@ import (
 	"fmt"
 	proto "order_service/generated/order"
 	"order_service/internal/service/order_service"
+	"order_service/internal/types"
 	"time"
 )
 
@@ -49,4 +50,37 @@ func (s *OrderServer) CreateOrder(
 	}
 
 	return nil, fmt.Errorf(UnsupportedOrderSide)
+}
+
+func (s *OrderServer) UpdateOrder(
+	ctx context.Context,
+	req *proto.OrderDetails,
+) (*proto.OrderDetails, error) {
+	var myOrder types.Order
+	if err := myOrder.FromProto(req); err != nil {
+		return nil, err
+	}
+
+	if req.Type == proto.OrderType_ORDER_TYPE_PENDING {
+		err := s.pendingBuyOrderService.UpdateOrder(ctx, &myOrder)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, fmt.Errorf(UnsupportedOrderSide)
+	}
+
+	return req, nil
+}
+
+func (s *OrderServer) DeleteOrder(
+	ctx context.Context,
+	req *proto.OrderID,
+) (*proto.OrderDetails, error) {
+	err := s.pendingBuyOrderService.DeleteOrder(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &proto.OrderDetails{}, nil
 }
