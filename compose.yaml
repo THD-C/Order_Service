@@ -1,0 +1,109 @@
+services:
+  DB_Manager:
+    build:
+      dockerfile: Dockerfile
+    image: thd/dbmanager
+    container_name: THD_DB_Manager
+    hostname: DB_Manager
+    restart: unless-stopped
+    ports:
+      - "50051:50051"
+    environment:
+      - POSTGRES_URL=postgresql://default:PL_tech_hand_elk@Postgres:5432/thdc
+    healthcheck:
+      test: [ "CMD", "python", "HealthCheck.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      Postgres:
+        condition: service_healthy
+
+  Postgres:
+    build: https://github.com/THD-C/Postgres.git
+    image: thd/postgres
+    container_name: THD_Postgres
+    hostname: Postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - PG-Data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U default -d thdc" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  Mongo:
+    build:
+      context: https://github.com/THD-C/Mongo.git
+      secrets:
+        - github_token
+    image: thd/mongo
+    container_name: THD_Mongo
+    hostname: Mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - MO-Data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  Mongo_Manager:
+    build: https://github.com/THD-C/Mongo_Manager.git
+    image: thd/mongo_manager
+    container_name: THD_Mongo_Manager
+    hostname: Mongo_Manager
+    restart: unless-stopped
+    environment:
+      - MONGO_URL=mongodb://Mongo/THDC
+    ports:
+      - "50052:50051"
+    healthcheck:
+      test: [ "CMD", "python", "HealthCheck.py" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      Mongo:
+        condition: service_healthy
+
+  order_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: thd/order_service
+    container_name: THD_order_service
+    hostname: order_service
+    restart: unless-stopped
+    ports:
+      - "50053:50051"
+    environment:
+      - APPLICATION_ADDR=0.0.0.0
+      - APPLICATION_PORT=50051
+      - PROMETHEUS_PORT=8111
+      - DB_MANAGER_ADDRESS=DB_Manager:50051
+      - COINGECKO_SERVICE_ADDRESS=coingecko_service_address
+      - DB_MANAGER_TIMEOUT=30
+      - COINGECKO_SERVICE_TIMEOUT=30
+      - COINGECKO_POLLING_FREQUENCY=60
+      - PENDING_ORDER_CHECK_FREQUENCY=60
+    depends_on:
+      DB_Manager:
+        condition: service_healthy
+
+volumes:
+  PG-Data:
+  MO-Data:
+
+secrets:
+  github_token:
+    file: ./.github_token
