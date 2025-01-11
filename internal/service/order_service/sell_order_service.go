@@ -84,8 +84,12 @@ func (s *SellOrderService) CreateOrder(
 	if err := order.FromProto(req); err != nil {
 		return nil, err
 	}
+	dbManagerClient, _ := client.GetDBManagerClient()
 
-	if err := s.processOrder(order); err != nil {
+	err := s.processOrder(order)
+	_ = dbManagerClient.UpdateOrder(order)
+
+	if err != nil {
 		return nil, err
 	}
 
