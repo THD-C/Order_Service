@@ -25,6 +25,7 @@ func (s *SellOrderService) processOrder(
 
 	fiatWallet, cryptoWallet, err := FetchAndValidateWallets(order)
 	if err != nil {
+		order.Status = proto.OrderStatus_ORDER_STATUS_REJECTED
 		return err
 	}
 
@@ -32,6 +33,7 @@ func (s *SellOrderService) processOrder(
 	if cryptoWallet.Value.LessThan(order.Nominal) {
 		cryptoWallet.Mutex.Unlock()
 		log.Error().Interface("request", order).Msg(bussiness_errors.MsgInsufficientCryptoCurrency)
+		order.Status = proto.OrderStatus_ORDER_STATUS_REJECTED
 		return bussiness_errors.NewCustomError(
 			bussiness_errors.ErrInsufficientCryptoCurrency,
 			bussiness_errors.MsgInsufficientCryptoCurrency,
@@ -43,6 +45,7 @@ func (s *SellOrderService) processOrder(
 	cryptoWallet.Value = cryptoWallet.Value.Sub(order.Nominal)
 	if err = cache.SaveWallet(cryptoWallet); err != nil {
 		cryptoWallet.Mutex.Unlock()
+		order.Status = proto.OrderStatus_ORDER_STATUS_REJECTED
 		log.Error().Err(err).Interface("request", order).Msg("Failed to update crypto wallet")
 		return fmt.Errorf("failed to update crypto wallet: %v", err)
 	}
@@ -53,6 +56,7 @@ func (s *SellOrderService) processOrder(
 
 	fiatWallet.Value = fiatWallet.Value.Add(order.Nominal.Mul(order.Price))
 	if err = cache.SaveWallet(fiatWallet); err != nil {
+		order.Status = proto.OrderStatus_ORDER_STATUS_REJECTED
 		if rollbackErr := RollbackWallet(cryptoWallet, originalCryptoValue); rollbackErr != nil {
 			return fmt.Errorf(
 				"failed to update fiat wallet: %v, and rollback failed: %v",
