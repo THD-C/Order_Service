@@ -10,6 +10,7 @@ import (
 	"order_service/internal/config"
 	"order_service/internal/logger"
 	"order_service/internal/types"
+	"strings"
 	"sync"
 )
 
@@ -75,7 +76,7 @@ func (c *CoinGeckoClient) GetAllCoinsPrice() ([]*types.CoinPrice, error) {
 				log.Error().Msgf("invalid price for %s in %s: %v", coinID, currency, err)
 				continue
 			}
-			prices[currency] = decimalValue
+			prices[strings.ToUpper(currency)] = decimalValue
 		}
 
 		coinPrices = append(
