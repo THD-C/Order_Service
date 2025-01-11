@@ -27,6 +27,11 @@ func (s *WalletService) CreateWallet(_ context.Context, req *wallet.Wallet) (
 		return nil, err
 	}
 
+	if _, err = cache.FetchWallet(createWallet.ID); err == nil {
+		log.Error().Err(err).Interface("request", req).Msg("Wallet already exists")
+		return req, nil
+	}
+
 	createWallet.Mutex.Lock()
 	err = cache.SaveWallet(&createWallet)
 	createWallet.Mutex.Unlock()
