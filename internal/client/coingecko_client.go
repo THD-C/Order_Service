@@ -81,7 +81,7 @@ func (c *CoinGeckoClient) GetAllCoinsPrice() ([]*types.CoinPrice, error) {
 
 		coinPrices = append(
 			coinPrices, &types.CoinPrice{
-				CoinId: coinID,
+				CoinId: strings.ToUpper(coinID),
 				Prices: prices,
 			},
 		)
