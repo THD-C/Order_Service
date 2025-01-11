@@ -82,7 +82,10 @@ func (c *DBManagerClient) FetchAllPendingOrders() ([]*types.Order, error) {
 
 	ordersList, err := c.orders.GetOrders(
 		context.Background(),
-		&order.OrderFilter{Status: order.OrderStatus_ORDER_STATUS_PENDING},
+		&order.OrderFilter{
+			Type:   order.OrderType_ORDER_TYPE_PENDING,
+			Status: order.OrderStatus_ORDER_STATUS_PENDING,
+		},
 	)
 	if err != nil {
 		return nil, err
