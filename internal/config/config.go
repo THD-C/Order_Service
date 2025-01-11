@@ -39,7 +39,7 @@ func LoadConfig() (*Config, error) {
 				applicationPort = "50051"
 			}
 
-			prometheusPort := os.Getenv("APPLICATION_PORT")
+			prometheusPort := os.Getenv("PROMETHEUS_PORT")
 			if prometheusPort == "" {
 				prometheusPort = "8111"
 			}
