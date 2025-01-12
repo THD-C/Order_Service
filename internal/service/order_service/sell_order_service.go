@@ -3,12 +3,14 @@ package order_service
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	proto "order_service/generated/order"
 	"order_service/internal/bussiness_errors"
 	"order_service/internal/cache"
 	"order_service/internal/client"
 	"order_service/internal/logger"
 	"order_service/internal/types"
+	"time"
 )
 
 type SellOrderService struct{}
@@ -72,6 +74,7 @@ func (s *SellOrderService) processOrder(
 	_ = dbManagerClient.UpdateWallet(cryptoWallet)
 
 	log.Info().Interface("request", order).Msg("Sell order processed successfully")
+	order.DateExecuted = timestamppb.New(time.Now())
 	order.Status = proto.OrderStatus_ORDER_STATUS_COMPLETED
 	return nil
 }
