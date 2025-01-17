@@ -3,6 +3,7 @@ package order_service
 import (
 	"context"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	proto "order_service/generated/order"
 	"order_service/internal/bussiness_errors"
@@ -56,7 +57,8 @@ func (s *SellOrderService) processOrder(
 	fiatWallet.Mutex.Lock()
 	defer fiatWallet.Mutex.Unlock()
 
-	fiatWallet.Value = fiatWallet.Value.Add(order.Nominal.Mul(order.Price))
+	price := order.Price.Mul(decimal.NewFromFloat(0.993))
+	fiatWallet.Value = fiatWallet.Value.Add(order.Nominal.Mul(price))
 	if err = cache.SaveWallet(fiatWallet); err != nil {
 		order.Status = proto.OrderStatus_ORDER_STATUS_REJECTED
 		if rollbackErr := RollbackWallet(cryptoWallet, originalCryptoValue); rollbackErr != nil {
@@ -74,6 +76,7 @@ func (s *SellOrderService) processOrder(
 	_ = dbManagerClient.UpdateWallet(cryptoWallet)
 
 	log.Info().Interface("request", order).Msg("Sell order processed successfully")
+	order.Price = price
 	order.DateExecuted = timestamppb.New(time.Now())
 	order.Status = proto.OrderStatus_ORDER_STATUS_COMPLETED
 	return nil
